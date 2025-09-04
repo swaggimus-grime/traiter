@@ -1,0 +1,16 @@
+[package]
+name = "pricing"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+criterion.workspace = true
+rand.workspace = true
+rand_distr.workspace = true
+statrs.workspace = true
+
+rayon = "1.11.0"
+
+[[bench]]
+name = "pricers"
+harness = false

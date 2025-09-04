@@ -1,0 +1,14 @@
+[package]
+name = "data"
+edition.workspace = true
+version.workspace = true
+readme.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+chrono = "0.4.41"
+serde.workspace = true
+
+[lints]
+workspace = true
