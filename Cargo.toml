@@ -1,8 +1,8 @@
 [workspace]
 resolver = "2"
-members = [
-    "crates/clih", "crates/data",
-    "crates/pricing",
+members = [ "crates/api", "crates/backend", "crates/backtest",
+    "crates/clih", "crates/core", "crates/data", "crates/frontend",
+    "crates/pricing", "crates/strats",
 ]
 
 [workspace.package]
@@ -11,13 +11,20 @@ version = "0.1.0"
 readme = "README.md"
 license = "Apache-2.0"
 repository = "https://github.com/swaggimus-grime/queef"
+keywords = ["trading", "quantitative", "backtesting", "finance", "rust"]
 
 [workspace.dependencies]
+anyhow = "1.0.99"
+chrono = { version = "0.4.41", features = ["serde"] }
 criterion = "0.7.0"
+dotenv = "0.15.0"
+futures = "0.3.31"
 serde = { version = "1.0.219", features = ["derive"] }
+serde_json = "1.0.143"
 statrs = "0.18"         # Normal CDF for BS
 rand = "0.9"            # RNG for Monte Carlo
 rand_distr = "0.5"      # StandardNormal distribution
+tokio = { version = "1.47.1", features = ["full"] }
 
 [profile.dev]
 opt-level = 1

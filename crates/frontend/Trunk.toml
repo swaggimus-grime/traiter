@@ -1,0 +1,13 @@
+[build]
+target = "index.html"
+dist = "dist"
+before_build = ["npx tailwindcss -c tailwind.config.ts -o output.css --minify"]
+
+[serve]
+addresses = ["127.0.0.1"]
+port = 8080
+ws_protocol = "ws"
+
+[[proxy]]
+backend = "http://localhost:3000"
+rewrite = "/api/"

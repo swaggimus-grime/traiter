@@ -1,19 +1,15 @@
 [package]
-name = "data"
+name = "strats"
 edition.workspace = true
 version.workspace = true
 readme.workspace = true
 license.workspace = true
 repository.workspace = true
+keywords.workspace = true
 
 [dependencies]
-anyhow.workspace = true
-chrono.workspace = true
-futures.workspace = true
-serde.workspace = true
-tokio.workspace = true
-
-yahoo_finance_api = "4.1.0"
+core.path = "../core"
+data.path = "../data"
 
 [lints]
 workspace = true

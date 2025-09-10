@@ -1,19 +1,17 @@
 [package]
-name = "data"
+name = "core"
 edition.workspace = true
 version.workspace = true
 readme.workspace = true
 license.workspace = true
 repository.workspace = true
+keywords.workspace = true
 
 [dependencies]
-anyhow.workspace = true
-chrono.workspace = true
-futures.workspace = true
-serde.workspace = true
-tokio.workspace = true
+data.path = "../data"
 
-yahoo_finance_api = "4.1.0"
+chrono.workspace = true
+serde.workspace = true
 
 [lints]
 workspace = true

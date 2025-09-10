@@ -1,1 +1,5 @@
-/target
+.idea/
+target/
+crates/frontend/dist/
+crates/frontend/node_modules/
+crates/frontend/output.css

@@ -1,30 +1,16 @@
 mod platforms;
+mod replay;
 
-use chrono::NaiveDate;
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone)]
-pub struct StockQuote {
-    pub date: NaiveDate,
-    pub close: f64,
-}
-
+/// Normalized market bar struct.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum OptionType {
-    Call,
-    Put,
-}
-
-#[derive(Debug, Clone)]
-pub struct OptionQuote {
-    pub date: NaiveDate,
-    pub underlying: String,
-    pub expiry: NaiveDate,
-    pub strike: f64,
-    pub option_type: OptionType,
-    pub last_price: f64,
-    pub bid: f64,
-    pub ask: f64,
-    pub volume: Option<u64>,
-    pub open_interest: Option<u64>,
+pub struct MarketBar {
+    pub ts: DateTime<Utc>,
+    pub open: f64,
+    pub high: f64,
+    pub low: f64,
+    pub close: f64,
+    pub volume: f64,
 }
