@@ -8,6 +8,8 @@ repository.workspace = true
 keywords.workspace = true
 
 [dependencies]
+core.path = "../core"
+
 serde.workspace = true
 
 [lints]

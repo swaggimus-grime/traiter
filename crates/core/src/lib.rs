@@ -1,12 +1,11 @@
+mod ohlcv;
+mod tests;
+
 use std::collections::HashMap;
 use std::fmt;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use crate::ohlcv::OHLCV;
-use data::MarketBar;
-
-mod ohlcv;
-mod tests;
+pub use crate::ohlcv::OHLCV;
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub enum OrderSide { Buy, Sell }

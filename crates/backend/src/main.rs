@@ -6,16 +6,18 @@ use axum::{routing::get, Router};
 use dotenv::dotenv;
 use tokio::net::TcpListener;
 use tracing::info;
+use crate::config::Config;
 use crate::routes::api_routes;
 
 #[tokio::main]
 async fn main() {
     tracing_subscriber::fmt::init();
 
-    dotenv().ok();
+    let config = Config::from_env();
 
     let app = Router::new()
-        .merge(api_routes());
+        .merge(api_routes())
+        .with_state(config);
 
     let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
     info!("🚀 Listening on http://{}", addr);

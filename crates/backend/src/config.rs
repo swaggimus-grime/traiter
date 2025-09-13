@@ -1,6 +1,5 @@
-use dotenvy::dotenv;
-use std::env;
 use dotenv::dotenv;
+use std::env;
 
 #[derive(Debug, Clone)]
 pub struct Config {
