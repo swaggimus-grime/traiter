@@ -17,9 +17,9 @@ async fn main() {
 
     let app = Router::new()
         .merge(api_routes())
-        .with_state(config);
+        .with_state(config.clone());
 
-    let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
+    let addr = SocketAddr::from(([0, 0, 0, 0], config.port));
     info!("🚀 Listening on http://{}", addr);
 
     // Start the server

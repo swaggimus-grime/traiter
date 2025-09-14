@@ -8,10 +8,11 @@ repository.workspace = true
 keywords.workspace = true
 
 [dependencies]
-data.path = "../data"
 
+anyhow.workspace = true
 chrono.workspace = true
 serde.workspace = true
+thiserror.workspace = true
 
 [lints]
 workspace = true

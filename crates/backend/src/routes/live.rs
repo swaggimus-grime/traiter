@@ -2,12 +2,11 @@ use std::collections::HashSet;
 use axum::extract::{Path, State, WebSocketUpgrade};
 use axum::extract::ws::{Message, WebSocket};
 use axum::response::IntoResponse;
-use chrono::Duration;
-use tokio::time::interval;
-use tokio_tungstenite::connect_async;
+use chrono::DateTime;
 use api::stock::{StockWatchReqMsg, StockWatchResMsg};
 use crate::config::Config;
-use core::OHLCV;
+use core::time::Timestamp;
+use core::market::Candle;
 
 pub async fn stream_stock(
     ws: WebSocketUpgrade,
@@ -17,69 +16,55 @@ pub async fn stream_stock(
 }
 
 async fn on_stream_stock(mut ws: WebSocket, config: Config) {
-    let mut subscriptions: HashSet<(String, String)> = HashSet::new();
+    let mut subscriptions: HashSet<(String, Timestamp)> = HashSet::new();
 
-    while let Some(Ok(msg)) = ws.next().await {
+    while let Some(Ok(msg)) = ws.recv().await {
         if let Message::Text(text) = msg {
             match serde_json::from_str::<StockWatchReqMsg>(&text) {
                 Ok(client_msg) => {
                     match client_msg {
-                        StockWatchReqMsg::Subscribe { ticker, timeframe } => {
-                            subscriptions.insert((ticker.clone(), timeframe.clone()));
+                        StockWatchReqMsg::Subscribe { ticker, timestamp } => {
+                            subscriptions.insert((ticker.clone(), timestamp.clone()));
 
                             // confirm subscription
                             let ack = StockWatchResMsg::Subscribed {
                                 ticker: ticker.clone(),
-                                timeframe: timeframe.clone(),
+                                timestamp: timestamp.clone(),
                             };
-                            let _ = ws.send(Message::Text(serde_json::to_string(&ack).unwrap())).await;
+                            let _ = ws.send(Message::from(serde_json::to_string(&ack).unwrap())).await;
 
                             // send mock candle
                             let candle = StockWatchResMsg::Candle {
-                                data: OHLCV::new(timeframe.clone(), 150.0, 160.0, 
-                                                 148.0, 155.0, 1_000_000.0)
+                                data: Candle::new(timestamp, 150.0, 160.0,
+                                                 148.0, 155.0, 1_000_000.0).unwrap()
                             };
-                            let _ = ws.send(Message::Text(serde_json::to_string(&candle).unwrap())).await;
+                            let _ = ws.send(Message::from(serde_json::to_string(&candle).unwrap())).await;
                         }
-                        StockWatchReqMsg::Unsubscribe { ticker, timeframe } => {
-                            subscriptions.remove(&(ticker.clone(), timeframe.clone()));
+                        StockWatchReqMsg::Unsubscribe { ticker, timestamp } => {
+                            subscriptions.remove(&(ticker.clone(), timestamp.clone()));
 
-                            let ack = StockWatchResMsg::Unsubscribed { ticker, timeframe };
-                            let _ = ws.send(Message::Text(serde_json::to_string(&ack).unwrap())).await;
+                            let ack = StockWatchResMsg::Unsubscribed { ticker, timestamp };
+                            let _ = ws.send(Message::from(serde_json::to_string(&ack).unwrap())).await;
                         }
-                        StockWatchReqMsg::History { ticker, timeframe, limit } => {
+                        StockWatchReqMsg::History { ticker, timestamp, limit } => {
                             // mock historical candles
                             let candles = vec![
-                                Candle {
-                                    time: "2025-09-01".into(),
-                                    open: 140.0,
-                                    high: 150.0,
-                                    low: 135.0,
-                                    close: 145.0,
-                                    volume: 900_000,
-                                },
-                                Candle {
-                                    time: "2025-09-02".into(),
-                                    open: 145.0,
-                                    high: 155.0,
-                                    low: 142.0,
-                                    close: 150.0,
-                                    volume: 1_200_000,
-                                },
+                                Candle::new("2025-09-01".parse().unwrap(), 140.0, 150.0, 135.0, 145.0, 900_000 as f64).unwrap(),
+                                Candle::new("2025-09-02".parse().unwrap(), 145.0, 155.0, 142.0, 150.0, 1_200_000 as f64).unwrap()
                             ];
 
-                            let msg = ServerMsg::Candles {
+                            let msg = StockWatchResMsg::Candles {
                                 ticker,
-                                timeframe,
+                                timestamp,
                                 data: candles,
                             };
-                            let _ = socket.send(Message::Text(serde_json::to_string(&msg).unwrap())).await;
+                            let _ = ws.send(Message::from(serde_json::to_string(&msg).unwrap())).await;
                         }
                     }
                 }
                 Err(e) => {
-                    let err = ServerMsg::Error { message: format!("Invalid message: {e}") };
-                    let _ = socket.send(Message::Text(serde_json::to_string(&err).unwrap())).await;
+                    let err = StockWatchResMsg::Error { message: format!("Invalid message: {e}") };
+                    let _ = ws.send(Message::from(serde_json::to_string(&err).unwrap())).await;
                 }
             }
         }

@@ -1,5 +1,6 @@
-use data::MarketBar;
-use crate::Strategy;
+use crate::{ExecutionReport, Strategy};
+use core::market::Candle;
+use core::{Order, OrderSide};
 
 pub struct SmaCross {
     pub short: usize,
@@ -8,7 +9,7 @@ pub struct SmaCross {
 }
 
 impl Strategy for SmaCross {
-    fn on_market_event(&mut self, bar: &MarketBar) -> Vec<Order> {
+    fn on_market_event(&mut self, bar: &Candle) -> Vec<Order> {
         self.prices.push(bar.close);
         if self.prices.len() < self.long {
             return vec![];
@@ -19,7 +20,7 @@ impl Strategy for SmaCross {
 
         if short_avg > long_avg {
             vec![Order {
-                id: bar.ts.timestamp() as u64,
+                id: bar.timestamp.timestamp() as u64,
                 symbol: "AAPL".into(),
                 qty: 10.0,
                 price: None,

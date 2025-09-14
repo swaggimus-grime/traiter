@@ -24,6 +24,7 @@ serde_json = "1.0.143"
 statrs = "0.18"         # Normal CDF for BS
 rand = "0.9"            # RNG for Monte Carlo
 rand_distr = "0.5"      # StandardNormal distribution
+thiserror = "2.0.16"
 tokio = { version = "1.47.1", features = ["full"] }
 
 [profile.dev]

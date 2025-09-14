@@ -1,24 +1,25 @@
 use serde::{Deserialize, Serialize};
-use core::OHLCV;
+use core::market::Candle;
+use core::time::Timestamp;
 
 #[derive(Deserialize, Debug)]
 #[serde(tag = "action", rename_all = "lowercase")]
 pub enum StockWatchReqMsg {
-    Subscribe { ticker: String, timeframe: String },
-    Unsubscribe { ticker: String, timeframe: String },
-    History { ticker: String, timeframe: String, limit: Option<u32> },
+    Subscribe { ticker: String, timestamp: Timestamp },
+    Unsubscribe { ticker: String, timestamp: Timestamp },
+    History { ticker: String, timestamp: Timestamp, limit: Option<u32> },
 }
 
 #[derive(Serialize, Debug)]
 #[serde(tag = "type", rename_all = "lowercase")]
 pub enum StockWatchResMsg {
-    Subscribed { ticker: String, timeframe: String },
-    Unsubscribed { ticker: String, timeframe: String },
-    Candle { data: OHLCV },
+    Subscribed { ticker: String, timestamp: Timestamp },
+    Unsubscribed { ticker: String, timestamp: Timestamp },
+    Candle { data: Candle },
     Candles {
         ticker: String,
-        timeframe: String,
-        data: Vec<OHLCV>,
+        timestamp: Timestamp,
+        data: Vec<Candle>,
     },
     Error { message: String },
 }

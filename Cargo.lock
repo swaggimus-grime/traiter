@@ -470,9 +470,10 @@ dependencies = [
 name = "core"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "chrono",
- "data",
  "serde",
+ "thiserror 2.0.16",
 ]
 
 [[package]]
@@ -570,6 +571,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "chrono",
+ "core",
  "futures",
  "serde",
  "tokio",
@@ -2554,6 +2556,7 @@ version = "0.1.0"
 dependencies = [
  "core",
  "data",
+ "serde",
 ]
 
 [[package]]

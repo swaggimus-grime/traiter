@@ -1,8 +1,9 @@
-use crate::MarketBar;
+use crate::platforms::CandleRange;
 use chrono::{DateTime, NaiveDateTime, Utc};
 use yahoo_finance_api as yahoo;
 use anyhow::Result;
 use crate::platforms::Platform;
+use core::market::Candle;
 
 pub struct Yahoo {
     connector: yahoo::YahooConnector,
@@ -17,17 +18,17 @@ impl Yahoo {
 }
 
 impl Platform for Yahoo {
-    fn period(&self) -> Result<Vec<MarketBar>> {
+    fn period(&self) -> Result<CandleRange> {
         todo!()
     }
 
-    fn range(&self, interval: &str, duration: &str) -> Result<Vec<MarketBar>> {
+    fn range(&self, interval: &str, duration: &str) -> Result<CandleRange> {
         todo!()
     }
 }
 
-/// Internal helper to convert Yahoo quotes to MarketBar
-fn convert_to_bars(quotes: Vec<yahoo::Quote>) -> Vec<MarketBar> {
+/// Internal helper to convert Yahoo quotes to OHLCV
+fn convert_to_bars(quotes: Vec<yahoo::Quote>) -> Vec<Candle> {
     quotes
         .into_iter()
         .map(|q| {
@@ -35,14 +36,7 @@ fn convert_to_bars(quotes: Vec<yahoo::Quote>) -> Vec<MarketBar> {
                 .unwrap_or_else(|| NaiveDateTime::from_timestamp_opt(0, 0).unwrap());
             let ts: DateTime<Utc> = DateTime::<Utc>::from_utc(naive, Utc);
 
-            MarketBar {
-                ts,
-                open: q.open,
-                high: q.high,
-                low: q.low,
-                close: q.close,
-                volume: q.volume as f64,
-            }
+            Candle::new(ts, q.open, q.high, q.low, q.close, q.volume as f64).unwrap()
         })
         .collect()
 }

@@ -11,5 +11,7 @@ keywords.workspace = true
 core.path = "../core"
 data.path = "../data"
 
+serde.workspace = true
+
 [lints]
 workspace = true

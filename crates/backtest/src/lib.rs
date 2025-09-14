@@ -1,6 +1,7 @@
 use std::collections::HashMap;
-use core::{ExecutionReport, Strategy, OrderSide, Portfolio};
-use data::MarketBar;
+use strats::{ExecutionReport, Strategy};
+use core::market::{Candle, CandleRange};
+use core::portfolio::Portfolio;
 
 #[derive(Debug)]
 pub struct BacktestResult {
@@ -22,8 +23,9 @@ impl<S: Strategy> Backtester<S> {
         Self { strategy, starting_cash }
     }
 
-    pub fn run(&mut self, data: Vec<MarketBar>) -> BacktestResult {
-        let mut portfolio = Portfolio::new(self.starting_cash);
+    pub fn run(&mut self, data: Portfolio) -> BacktestResult {
+        todo!();
+        /*
         let mut trades = Vec::new();
         let mut equity_curve = Vec::new();
 
@@ -35,13 +37,13 @@ impl<S: Strategy> Backtester<S> {
                     order_id: order.id,
                     filled_qty: order.qty,
                     fill_price: bar.close,
-                    ts: bar.ts,
+                    ts: bar.timestamp,
                 };
 
                 self.strategy.on_fill(&report);
                 trades.push(report.clone());
 
-                portfolio.apply_fill(&bar.symbol, order.side, report.filled_qty, report.fill_price);
+                portfolio.apply_fill(data.symbol, order.side, report.filled_qty, report.fill_price);
             }
 
             // compute current portfolio value
@@ -67,6 +69,7 @@ impl<S: Strategy> Backtester<S> {
             max_drawdown,
             sharpe_ratio,
         }
+        */
     }
 }
 
