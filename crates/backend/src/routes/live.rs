@@ -4,18 +4,18 @@ use axum::extract::ws::{Message, WebSocket};
 use axum::response::IntoResponse;
 use chrono::DateTime;
 use api::stock::{StockWatchReqMsg, StockWatchResMsg};
-use crate::config::Config;
 use core::time::Timestamp;
 use core::market::Candle;
+use crate::config::BackendConfig;
 
 pub async fn stream_stock(
     ws: WebSocketUpgrade,
-    State(config): State<Config>,
+    State(config): State<BackendConfig>,
 ) -> impl IntoResponse {
     ws.on_upgrade(move |socket| on_stream_stock(socket, config))
 }
 
-async fn on_stream_stock(mut ws: WebSocket, config: Config) {
+async fn on_stream_stock(mut ws: WebSocket, config: BackendConfig) {
     let mut subscriptions: HashSet<(String, Timestamp)> = HashSet::new();
 
     while let Some(Ok(msg)) = ws.recv().await {

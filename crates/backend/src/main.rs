@@ -3,17 +3,16 @@ mod config;
 
 use std::net::SocketAddr;
 use axum::{routing::get, Router};
-use dotenv::dotenv;
 use tokio::net::TcpListener;
 use tracing::info;
-use crate::config::Config;
+use crate::config::BackendConfig;
 use crate::routes::api_routes;
 
 #[tokio::main]
 async fn main() {
     tracing_subscriber::fmt::init();
 
-    let config = Config::from_env();
+    let config = BackendConfig::load().expect("Failed to load config");
 
     let app = Router::new()
         .merge(api_routes())

@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: traiter
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD_FILE: /run/secrets/database_password
+    secrets:
+      - database_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass "$$(cat /run/secrets/redis_password)"
+    secrets:
+      - redis_password
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      DOCKER_ENV: "true"
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_NAME: traiter
+      DATABASE_USER: postgres
+      REDIS_URL: redis://redis:6379
+      PORT: 8080
+      LOG_LEVEL: debug
+      CORS_ORIGIN: http://localhost:3000
+    secrets:
+      - database_password
+      - jwt_secret
+      - api_key
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    command: cargo watch -x run
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    environment:
+      DOCKER_ENV: "true"
+      API_BASE_URL: http://backend:8080
+      APP_NAME: "Traiter Dev"
+      PORT: 3000
+    secrets:
+      - api_key
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+
+secrets:
+  database_password:
+    file: ./secrets/database_password
+  jwt_secret:
+    file: ./secrets/jwt_secret
+  api_key:
+    file: ./secrets/api_key
+  redis_password:
+    file: ./secrets/redis_password
+
+volumes:
+  postgres_data:

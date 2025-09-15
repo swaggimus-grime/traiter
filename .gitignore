@@ -3,3 +3,9 @@ target/
 crates/frontend/dist/
 crates/frontend/node_modules/
 crates/frontend/output.css
+
+.env.private
+crates/*/.env.private
+
+# Docker secrets
+secrets/
