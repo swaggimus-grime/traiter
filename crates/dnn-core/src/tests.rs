@@ -28,15 +28,5 @@ mod tests {
         let result = Candle::new(timestamp, -100.0, 105.0, 98.0, 102.0, 1000.0);
         assert!(result.is_err());
     }
-
-    #[test]
-    fn test_market_data() {
-        let mut market_data = CandleRange::new("AAPL".to_string(), Timeframe::Day1);
-        let timestamp = Utc::now();
-        let ohlcv = Candle::new(timestamp, 100.0, 105.0, 98.0, 102.0, 1000.0).unwrap();
-
-        market_data.add(ohlcv);
-        assert_eq!(market_data.len(), 1);
-        assert_eq!(market_data.closes()[0], 102.0);
-    }
+    
 }

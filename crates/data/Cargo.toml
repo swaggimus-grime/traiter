@@ -7,15 +7,18 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
-core.path = "../core"
+dnn-core.path = "../dnn-core"
 
 anyhow.workspace = true
+async-trait.workspace = true
 chrono.workspace = true
 futures.workspace = true
 serde.workspace = true
 tokio.workspace = true
+tokio-stream.workspace = true
 
 yahoo_finance_api = "4.1.0"
+
 
 [lints]
 workspace = true

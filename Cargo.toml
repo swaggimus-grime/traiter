@@ -1,7 +1,7 @@
 [workspace]
 resolver = "2"
 members = [ "crates/api", "crates/backend", "crates/backtest",
-    "crates/clih", "crates/config", "crates/core", "crates/data", "crates/frontend",
+    "crates/clih", "crates/config", "crates/dnn-core", "crates/data", "crates/frontend",
     "crates/pricing", "crates/strats",
 ]
 
@@ -15,6 +15,7 @@ keywords = ["trading", "quantitative", "backtesting", "finance", "rust"]
 
 [workspace.dependencies]
 anyhow = "1.0.99"
+async-trait = "0.1.89"
 chrono = { version = "0.4.41", features = ["serde"] }
 criterion = "0.7.0"
 dotenvy = "0.15.7"
@@ -26,6 +27,7 @@ rand = "0.9"            # RNG for Monte Carlo
 rand_distr = "0.5"      # StandardNormal distribution
 thiserror = "2.0.16"
 tokio = { version = "1.47.1", features = ["full"] }
+tokio-stream = "0.1.17"
 
 [profile.dev]
 opt-level = 1

@@ -2,9 +2,9 @@ mod buy_and_hold;
 mod sma_cross;
 
 use serde::{Deserialize, Serialize};
-use core::{Order, OrderSide};
-use core::market::Candle;
-use core::time::Timestamp;
+use dnn_core::market::Candle;
+use dnn_core::Order;
+use dnn_core::time::Timestamp;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ExecutionReport {

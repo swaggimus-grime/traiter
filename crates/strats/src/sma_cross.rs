@@ -1,6 +1,6 @@
 use crate::{ExecutionReport, Strategy};
-use core::market::Candle;
-use core::{Order, OrderSide};
+use dnn_core::market::Candle;
+use dnn_core::{Order, OrderSide};
 
 pub struct SmaCross {
     pub short: usize,

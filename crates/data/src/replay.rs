@@ -1,40 +1,36 @@
-use core::market::{Candle, CandleRange};
-use tokio::time::{sleep, Duration};
-use futures::stream::{self, Stream};
-use std::pin::Pin;
+use tokio_stream::Stream;
+use dnn_core::market::Candle;
 
-/// Replay mode for market data
-pub struct DataReplayer {
-    bars: CandleRange,
-    delay_ms: Option<u64>, // None = no delay (fast-forward), Some = paced
+pub struct ReplayProvider {
+    candles: Vec<Candle>,
+    speed: f64,
 }
 
-impl DataReplayer {
-    pub fn new(bars: CandleRange) -> Self {
-        Self { bars, delay_ms: None }
+impl ReplayProvider {
+    pub fn new(candles: Vec<Candle>, speed: f64) -> Self {
+        Self { candles, speed }
     }
 
-    /// Set pacing between bars (simulates real-time).
-    /// Example: `set_delay_ms(1000)` → 1 bar per second
-    pub fn set_delay_ms(mut self, ms: u64) -> Self {
-        self.delay_ms = Some(ms);
-        self
-    }
+    pub fn stream(self) -> impl Stream<Item = Candle> {
+        let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
+        tokio::spawn(async move {
+            for window in self.candles.windows(2) {
+                let candle = window[0].clone();
+                let next = &window[1];
 
-    /// Return an async stream of bars
-    pub fn into_stream(self) -> Pin<Box<dyn Stream<Item = Candle> + Send>> {
-        let delay = self.delay_ms;
-        Box::pin(stream::unfold((self.bars, delay, 0), |(bars, delay, idx)| async move {
-            if idx >= bars.len() {
-                return None;
-            }
-            let bar = bars[idx].clone();
+                let _ = tx.send(candle);
 
-            if let Some(ms) = delay {
-                sleep(Duration::from_millis(ms)).await;
+                if self.speed > 0.0 {
+                    let delta = (next.timestamp - window[0].timestamp).as_seconds_f64();
+                    let sleep_ms = delta / self.speed;
+                    tokio::time::sleep(std::time::Duration::from_millis(sleep_ms as u64)).await;
+                }
             }
 
-            Some((bar, (bars, delay, idx + 1)))
-        }))
+            if let Some(last) = self.candles.last().cloned() {
+                let _ = tx.send(last);
+            }
+        });
+        tokio_stream::wrappers::UnboundedReceiverStream::new(rx)
     }
 }

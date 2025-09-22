@@ -8,7 +8,7 @@ repository.workspace = true
 keywords.workspace = true
 
 [dependencies]
-core.path = "../core"
+dnn-core.path = "../dnn-core"
 data.path = "../data"
 
 serde.workspace = true

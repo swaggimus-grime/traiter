@@ -1,25 +1,32 @@
 use serde::{Deserialize, Serialize};
-use core::market::Candle;
-use core::time::Timestamp;
+use dnn_core::market::Candle;
+use dnn_core::time::Timestamp;
 
 #[derive(Deserialize, Debug)]
 #[serde(tag = "action", rename_all = "lowercase")]
 pub enum StockWatchReqMsg {
-    Subscribe { ticker: String, timestamp: Timestamp },
-    Unsubscribe { ticker: String, timestamp: Timestamp },
-    History { ticker: String, timestamp: Timestamp, limit: Option<u32> },
+    Day { id: String, provider: String, symbol: String, interval: String },
+    Night {
+        id: String,
+        provider: String,
+        symbol: String,
+        interval: String,
+        start: Timestamp,
+        end: Timestamp,
+        playback_speed: Option<u32>
+    },
+    Unsubscribe { id: String },
 }
 
 #[derive(Serialize, Debug)]
 #[serde(tag = "type", rename_all = "lowercase")]
 pub enum StockWatchResMsg {
-    Subscribed { ticker: String, timestamp: Timestamp },
-    Unsubscribed { ticker: String, timestamp: Timestamp },
-    Candle { data: Candle },
-    Candles {
-        ticker: String,
-        timestamp: Timestamp,
-        data: Vec<Candle>,
+    Candle {
+        id: String,
+        provider: String,
+        symbol: String,
+        interval: String,
+        candle: Candle,
     },
     Error { message: String },
 }

@@ -95,15 +95,13 @@ impl fmt::Display for Candle {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CandleRange {
     pub symbol: String,
-    pub timeframe: Timeframe,
     pub data: Vec<Candle>,
 }
 
 impl CandleRange {
-    pub fn new(symbol: String, timeframe: Timeframe) -> Self {
+    pub fn new(symbol: String) -> Self {
         CandleRange {
             symbol,
-            timeframe,
             data: Vec::new(),
         }
     }
