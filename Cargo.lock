@@ -585,10 +585,12 @@ name = "data"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "api",
  "async-trait",
  "chrono",
  "dnn-core",
  "futures",
+ "log",
  "serde",
  "tokio",
  "tokio-stream",
@@ -693,10 +695,13 @@ dependencies = [
 name = "frontend"
 version = "0.1.0"
 dependencies = [
+ "api",
  "chrono",
+ "dnn-core",
  "futures",
  "gloo 0.11.0",
  "js-sys",
+ "serde",
  "serde-wasm-bindgen 0.6.5",
  "serde_json",
  "wasm-bindgen",

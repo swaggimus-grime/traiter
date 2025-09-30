@@ -2,7 +2,7 @@ use yew::prelude::*;
 use yew_router::prelude::*;
 
 use crate::components::{navbar::Navbar, sidebar::Sidebar};
-use crate::pages::{ChartView, Dashboard};
+use crate::pages::{ChartView, Dashboard, Scanner, Strategies};
 
 #[derive(Routable, PartialEq, Clone, Debug)]
 pub enum Route {
@@ -10,8 +10,10 @@ pub enum Route {
     Dashboard,
     #[at("/chart")]
     ChartView,
-    //#[at("/strategies")]
-    //Strategies,
+    #[at("/scanner")]
+    Scanner,
+    #[at("/strategies")]
+    Strategies,
     //#[at("/backtest")]
     //Backtest,
     //#[at("/live")]
@@ -45,7 +47,8 @@ fn switch(route: Route) -> Html {
     match route {
         Route::Dashboard => html! { <Dashboard /> },
         Route::ChartView => html! { <ChartView /> },
-        //Route::Strategies => html! { <Strategies /> },
+        Route::Scanner => html! { <Scanner /> },
+        Route::Strategies => html! { <Strategies /> },
         //Route::Backtest => html! { <Backtest /> },
         //Route::LiveTrading => html! { <LiveTrading /> },
         //Route::Settings => html! { <Settings /> },

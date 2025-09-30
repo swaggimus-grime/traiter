@@ -8,7 +8,9 @@ use api::stock::{StockWatchReqMsg, StockWatchResMsg};
 use futures::{SinkExt, StreamExt};
 use tokio::sync::Mutex;
 use tokio::task::JoinHandle;
-use dnn_core::time::Timestamp;
+use tracing::info;
+use api::ProviderType;
+use dnn_core::time::{TimeInterval, Timestamp};
 use crate::state::{BackendState, SafeProvider};
 
 pub async fn stream_stock(
@@ -35,13 +37,12 @@ async fn on_stream_stock(mut ws: WebSocket, state: Arc<BackendState>) {
                 if let Some(task) = tasks.remove(&id) {
                     task.abort();
                 }
-
-                if let Some(p) = state.provider_from_string(&provider) {
-                    match p.stream(&symbol, &interval).await {
+                
+                if let Some(p) = state.get_provider(provider) {
+                    match p.stream(&symbol, interval).await {
                         Ok(mut stream) => {
                             let sender_clone = sender.clone();
                             let id_clone = id.clone();
-                            let provider_clone = provider.clone();
                             let symbol_clone = symbol.clone();
                             let interval_clone = interval.clone();
 
@@ -49,7 +50,7 @@ async fn on_stream_stock(mut ws: WebSocket, state: Arc<BackendState>) {
                                 while let Some(candle) = stream.next().await {
                                     let msg = StockWatchResMsg::Candle {
                                         id: id_clone.clone(),
-                                        provider: provider_clone.clone(),
+                                        provider,
                                         symbol: symbol_clone.clone(),
                                         interval: interval_clone.clone(),
                                         candle,
@@ -67,7 +68,7 @@ async fn on_stream_stock(mut ws: WebSocket, state: Arc<BackendState>) {
                         }
                     }
                 } else {
-                    send_error(sender.clone(), format!("unknown provider {}", provider)).await;
+                    send_error(sender.clone(), format!("unknown provider {}", provider.as_ref())).await;
                 }
             },
             Ok(StockWatchReqMsg::Night {
@@ -83,12 +84,11 @@ async fn on_stream_stock(mut ws: WebSocket, state: Arc<BackendState>) {
                     task.abort();
                 }
 
-                if let Some(p) = state.provider_from_string(&provider) {
+                if let Some(p) = state.get_provider(provider) {
                     let sender_clone = sender.clone();
                     let id_clone = id.clone();
                     let provider_clone = p.clone();
                     let symbol_clone = symbol.clone();
-                    let interval_clone = interval.clone();
 
                     let handle = tokio::spawn(async move {
                         if let Err(e) = stream_historical(
@@ -96,7 +96,7 @@ async fn on_stream_stock(mut ws: WebSocket, state: Arc<BackendState>) {
                             sender_clone,
                             provider_clone,
                             symbol_clone,
-                            interval_clone,
+                            interval,
                             start,
                             end,
                             playback_speed,
@@ -109,7 +109,7 @@ async fn on_stream_stock(mut ws: WebSocket, state: Arc<BackendState>) {
 
                     tasks.insert(id, handle);
                 } else {
-                    send_error(sender.clone(), format!("unknown provider {}", provider)).await;
+                    send_error(sender.clone(), format!("unknown provider {}", provider.as_ref())).await;
                 }
             }
 
@@ -147,12 +147,12 @@ async fn stream_historical(
     sender: Arc<Mutex<impl SinkExt<Message> + Unpin>>,
     provider: SafeProvider,
     symbol: String,
-    interval: String,
+    interval: TimeInterval,
     start: Timestamp,
     end: Timestamp,
     playback_speed: Option<u32>,
 ) -> anyhow::Result<()> {
-    let candles = provider.historical(&symbol, &interval, start, end).await?;
+    let candles = provider.historical(&symbol, interval, start, end).await?;
 
     let speed = playback_speed.unwrap_or(1);
     let delay = std::time::Duration::from_millis(1000 / speed as u64);
@@ -160,7 +160,7 @@ async fn stream_historical(
     for c in candles {
         let msg = StockWatchResMsg::Candle {
             id: id.clone(),
-            provider: "historical".to_string(),
+            provider: provider.get_type(),
             symbol: symbol.clone(),
             interval: interval.clone(),
             candle: c,

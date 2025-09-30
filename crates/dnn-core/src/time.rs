@@ -6,7 +6,7 @@ pub type Timestamp = DateTime<Utc>;
 
 /// Represents different timeframes for market data
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub enum Timeframe {
+pub enum TimeInterval {
     Minute1,
     Minute5,
     Minute15,
@@ -18,35 +18,35 @@ pub enum Timeframe {
     Month1,
 }
 
-impl Timeframe {
+impl TimeInterval {
     /// Convert timeframe to seconds
     pub fn to_seconds(&self) -> i64 {
         match self {
-            Timeframe::Minute1 => 60,
-            Timeframe::Minute5 => 300,
-            Timeframe::Minute15 => 900,
-            Timeframe::Minute30 => 1800,
-            Timeframe::Hour1 => 3600,
-            Timeframe::Hour4 => 14400,
-            Timeframe::Day1 => 86400,
-            Timeframe::Week1 => 604800,
-            Timeframe::Month1 => 2592000, // Approximate
+            TimeInterval::Minute1 => 60,
+            TimeInterval::Minute5 => 300,
+            TimeInterval::Minute15 => 900,
+            TimeInterval::Minute30 => 1800,
+            TimeInterval::Hour1 => 3600,
+            TimeInterval::Hour4 => 14400,
+            TimeInterval::Day1 => 86400,
+            TimeInterval::Week1 => 604800,
+            TimeInterval::Month1 => 2592000, // Approximate
         }
     }
 }
 
-impl fmt::Display for Timeframe {
+impl fmt::Display for TimeInterval {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s = match self {
-            Timeframe::Minute1 => "1m",
-            Timeframe::Minute5 => "5m",
-            Timeframe::Minute15 => "15m",
-            Timeframe::Minute30 => "30m",
-            Timeframe::Hour1 => "1h",
-            Timeframe::Hour4 => "4h",
-            Timeframe::Day1 => "1d",
-            Timeframe::Week1 => "1w",
-            Timeframe::Month1 => "1M",
+            TimeInterval::Minute1 => "1m",
+            TimeInterval::Minute5 => "5m",
+            TimeInterval::Minute15 => "15m",
+            TimeInterval::Minute30 => "30m",
+            TimeInterval::Hour1 => "1h",
+            TimeInterval::Hour4 => "4h",
+            TimeInterval::Day1 => "1d",
+            TimeInterval::Week1 => "1w",
+            TimeInterval::Month1 => "1M",
         };
         write!(f, "{}", s)
     }

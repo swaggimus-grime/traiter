@@ -4,7 +4,7 @@ mod tests {
     use super::*;
     use chrono::Utc;
     use crate::market::{CandleRange, Candle};
-    use crate::time::Timeframe;
+    use crate::time::TimeInterval;
 
     #[test]
     fn test_ohlcv_creation() {

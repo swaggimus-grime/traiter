@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::sync::Arc;
-use data::providers::{Provider, ProviderType, Yahoo};
+use api::ProviderType;
+use data::providers::{Provider, Yahoo};
 use crate::config::BackendConfig;
 
 pub type SafeProvider = Arc<Box<dyn Provider + Send + Sync>>;
@@ -22,8 +23,7 @@ impl BackendState {
         })
     }
     
-    pub fn provider_from_string(&self, provider: &str) -> Option<&SafeProvider> {
-        let ty = ProviderType::from(provider);
-        self.providers.get(&ty)
+    pub fn get_provider(&self, provider: ProviderType) -> Option<&SafeProvider> {
+        self.providers.get(&provider)
     }
 }

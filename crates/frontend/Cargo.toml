@@ -8,8 +8,12 @@ repository.workspace = true
 keywords.workspace = true
 
 [dependencies]
+api.path = "../api"
+dnn-core.path = "../dnn-core"
+
 chrono.workspace = true
 futures.workspace = true
+serde.workspace = true
 serde_json.workspace = true
 
 yew = { version = "0.21.0", features = ["csr"] }

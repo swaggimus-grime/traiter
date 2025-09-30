@@ -1,16 +1,17 @@
 use serde::{Deserialize, Serialize};
 use dnn_core::market::Candle;
-use dnn_core::time::Timestamp;
+use dnn_core::time::{TimeInterval, Timestamp};
+use crate::ProviderType;
 
-#[derive(Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 #[serde(tag = "action", rename_all = "lowercase")]
 pub enum StockWatchReqMsg {
-    Day { id: String, provider: String, symbol: String, interval: String },
+    Day { id: String, provider: ProviderType, symbol: String, interval: TimeInterval },
     Night {
         id: String,
-        provider: String,
+        provider: ProviderType,
         symbol: String,
-        interval: String,
+        interval: TimeInterval,
         start: Timestamp,
         end: Timestamp,
         playback_speed: Option<u32>
@@ -18,14 +19,14 @@ pub enum StockWatchReqMsg {
     Unsubscribe { id: String },
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 #[serde(tag = "type", rename_all = "lowercase")]
 pub enum StockWatchResMsg {
     Candle {
         id: String,
-        provider: String,
+        provider: ProviderType,
         symbol: String,
-        interval: String,
+        interval: TimeInterval,
         candle: Candle,
     },
     Error { message: String },

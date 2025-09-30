@@ -3,7 +3,7 @@ use std::ops::Index;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use crate::error::PriceError;
-use crate::time::{Timeframe, Timestamp};
+use crate::time::{TimeInterval, Timestamp};
 
 /// Core OHLCV (Open, High, Low, Close, Volume) data structure
 /// This is the fundamental building block for all market data

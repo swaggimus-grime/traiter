@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 use strats::{ExecutionReport, Strategy};
-use core::market::{Candle, CandleRange};
-use core::portfolio::Portfolio;
+use dnn_core::portfolio::Portfolio;
 
 #[derive(Debug)]
 pub struct BacktestResult {

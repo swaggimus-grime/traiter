@@ -9,8 +9,10 @@ use async_trait::async_trait;
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::UnboundedReceiverStream;
 use yahoo_finance_api::time::OffsetDateTime;
+use api::ProviderType;
 use dnn_core::market::Candle;
-use dnn_core::time::Timestamp;
+use dnn_core::time::{TimeInterval, Timestamp};
+use log::{error, info};
 
 pub struct Yahoo {
     connector: Arc<yahoo::YahooConnector>,
@@ -27,38 +29,46 @@ impl Yahoo {
 #[async_trait]
 impl Provider for Yahoo {
 
-    async fn stream(&self, symbol: &str, interval: &str) -> Result<ProviderStream> {
+    async fn stream(&self, symbol: &str, interval: TimeInterval) -> Result<ProviderStream> {
         let (tx, rx) = mpsc::unbounded_channel();
 
         let symbol = symbol.to_string();
-        let interval = interval.to_string();
         let connector = self.connector.clone();
 
         // Poll Yahoo Finance every N seconds
         tokio::spawn(async move {
             loop {
-                if let Ok(resp) = connector.get_latest_quotes(&symbol, &interval).await {
-                    let quotes = resp.quotes().unwrap();
-                    let candles = candles_from_quotes(quotes);
-                    for c in candles {
-                        let _ = tx.send(c);
+                match connector.get_latest_quotes(&symbol, &*interval.to_string()).await {
+                    Ok(resp) => {
+                        let quotes = resp.quotes().unwrap();
+                        let candles = candles_from_quotes(quotes);
+                        for c in candles {
+                            let _ = tx.send(c);
+                        }
+                    },
+                    Err(e) => {
+                        error!("Failed to get latest quotes from Yahoo with {} and {}: {}", symbol, interval, e);
                     }
                 }
-                // Poll every 60s (or match the interval)
-                tokio::time::sleep(std::time::Duration::from_secs(60)).await;
+
+                tokio::time::sleep(std::time::Duration::from_secs(4)).await;
             }
         });
 
         Ok(UnboundedReceiverStream::new(rx))
     }
 
-    async fn historical(&self, symbol: &str, interval: &str, start: Timestamp, end: Timestamp) -> Result<Vec<Candle>> {
+    async fn historical(&self, symbol: &str, interval: TimeInterval, start: Timestamp, end: Timestamp) -> Result<Vec<Candle>> {
         self.connector.get_quote_history_interval(
             symbol,
             OffsetDateTime::from_unix_timestamp(start.timestamp())?,
-            OffsetDateTime::from_unix_timestamp(start.timestamp())?,
-            interval
+            OffsetDateTime::from_unix_timestamp(end.timestamp())?,
+            &*interval.to_string()
         ).await?.quotes()?.into_iter().map(|q| convert_quote_to_candle(&q, symbol)).collect()
+    }
+
+    fn get_type(&self) -> ProviderType {
+        ProviderType::Yahoo
     }
 }
 
